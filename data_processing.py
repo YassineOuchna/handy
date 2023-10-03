@@ -49,7 +49,7 @@ def visualize_img(images_raw):  # Shows 6 images of the dataset
 """---  SETTING UP LABEL DATASET  ---"""
 
 
-# Projection onto the 2D plane wiht linalg voodoo
+# Projection onto the 2D plane wiht linalg magic
 uv = tf.transpose(
     tf.linalg.matmul(K, tf.transpose(xyz_file, perm=(0, 2, 1))), perm=(0, 2, 1)
 )
@@ -93,7 +93,7 @@ def visualize_img_labels():  # shows the first 6 images with their corresponding
 def create_label(label):
     label = tf.cast(
         label, dtype=tf.int64
-    )  # On change le type du tenseur de float à int
+    )  # changing the type from float to int
     label = tf.clip_by_value(label, 0, 127)  # On écrete les valeurs extrèmes
     batch_lvl = tf.concat(
         [tf.ones(21, dtype=tf.int64) * i for i in range(batch_size)], axis=0
@@ -155,6 +155,19 @@ def load_dataset():
     label_dataset = label_origin.map(create_layer)
     return tf.data.Dataset.zip((img_dataset, label_dataset))
 
+def visualize_layer(data):
+    plt.figure(figsize=(10, 6))
+    for element in data: 
+        for i in range(3):
+            ax = plt.subplot(2, 3, i + 1)
+            image_label=tf.reduce_sum(element[1][i], axis=-1)
+            plt.imshow(image_label)
+            ax=plt.subplot(2,3,i+2)
+            plt.imshow(element[0][i])
+            plt.axis("off")
+        plt.show()
+        break
 
 if __name__ == "__main__":
+    visualize_layer(load_dataset())
     print("executed as main")
