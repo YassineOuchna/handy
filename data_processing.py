@@ -4,6 +4,7 @@ import json as j
 import numpy as np
 from tensorflow import keras
 
+
 " Running this file visualizes the images, labels and first layer of a CNN and saves the final dataset"
 
 """---  IMPORTING RAW TRAINING DATA  ---"""
@@ -176,8 +177,10 @@ def visualize_layer(data):
 
 """---  SAVING THE FINAL DATASET  ---"""
 
-path='./data/dataset'
-load_dataset().save(path)
+
+def save_dataset(path):
+    load_dataset().save(path)
+
 
 if __name__ == "__main__":
     visualize_img_labels()
