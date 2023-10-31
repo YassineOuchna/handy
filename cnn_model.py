@@ -52,5 +52,3 @@ class ConvBlock(tf.keras.Model):
 # Input node
 x = layers.Input(shape=(128, 128, 3))
 model = convblock(x, N)
-for i in range(3):
-    model.core.add(ConvBlock(N*(2)**(i+1)))
