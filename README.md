@@ -24,8 +24,8 @@ The neural network model used in the article is beautifully described by the fol
 
 <img src="./demos/model.png?raw=true" />
 
-I'm currently playing around with different parameters and testing some layers such as SpatialDropOut on top of this model. \
-However modifying and testing on such a huge dataset takes a lot of time even when using top tier GPUs in GoogleCollab, one epoch with a batch size of 64 takes roughly 2 hours! 
+I'm currently playing around with different parameters and testing some sutff like adding a SpatialDropOut, changing batch size...etc\
+However modifying and testing on such a huge dataset takes a lot of time, even when using top tier GPUs in GoogleCollab, one epoch with a batch size of 64 takes roughly 2 hours! 
 
 
 
