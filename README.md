@@ -17,6 +17,15 @@ Here are some of the outputs of the file *data_processing.py* :
 
 <img src="./demos/layers.png?raw=true" />
 
+## Model architechture 
+The neural network model used in the article is beautifully described by the following illustration : 
+
+*U-net model originally used in [article](https://towardsdatascience.com/gentle-introduction-to-2d-hand-pose-estimation-approach-explained-4348d6d79b11)*
+
+<img src="./demos/model.png?raw=true" />
+
+I'm currently playing around with different parameters and testing some layers such as SpatialDropOut on top of this model. \
+However modifying and testing on such a huge dataset takes a lot of time even when using top tier GPUs in GoogleCollab, one epoch with a batch size of 64 takes roughly 2 hours! 
 
 
 
