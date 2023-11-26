@@ -15,8 +15,8 @@ training_data_directory = "./data/training/rgb"
 batch_size = 64
 image_size = [128, 128]
 
-# Turning raw images into a keras tensor 
-# 130240 images of shape 128 x 128 x 3 (rgb values) 
+# Turning raw images into a keras tensor
+# 130240 images of shape 128 x 128 x 3 (rgb values)
 # that are put into batches of size 64
 images_raw = keras.utils.image_dataset_from_directory(
     training_data_directory,
@@ -36,7 +36,7 @@ with open("./data/training_xyz.json", "r") as f:
 
 with open("./data/training_K.json", "r") as k:
     K = j.load(k)
-    K = tf.convert_to_tensor(K) # 3D Coordonates of camera position
+    K = tf.convert_to_tensor(K)  # 3D Coordonates of camera position
 
 
 def visualize_img(images_raw):  # Shows 6 images of the dataset
@@ -59,25 +59,25 @@ uv = tf.transpose(
 )
 label_raw = uv[:, :, :2] / uv[:, :, -1:]
 # resizing the coordinates to a 128 x 128 shape
-label_raw = label_raw * (127 / 224)  
+label_raw = label_raw * (127 / 224)
 
-# for each label, we have 4 corresponding images 
+# for each label, we have 4 corresponding images
 # having the same hand posture in different conditions
 
 L1 = tf.concat([label_raw, label_raw], 0)
 L2 = tf.concat([label_raw, label_raw], 0)
 
 
-
-label_tensor = tf.concat([L1, L2], 0) # tensor of shape 130240 x 21 x 2 
-                                      # having the (x,y) of 21 hand posture defining points
+label_tensor = tf.concat([L1, L2], 0)  # tensor of shape 130240 x 21 x 2
+# having the (x,y) of 21 hand posture defining points
 
 
 # Creating a dataset with both images and labels with batches of size 64
 label_origin = tf.data.Dataset.from_tensor_slices(label_tensor).batch(
     batch_size, drop_remainder=True
 )
-dataset = tf.data.Dataset.zip((images_raw, label_origin))
+# dataset with x,y locations as labels
+# dataset = tf.data.Dataset.zip((images_raw, label_origin))
 
 
 def visualize_img_labels():       # shows the first 6 images with their corresponding labels
@@ -88,7 +88,8 @@ def visualize_img_labels():       # shows the first 6 images with their correspo
             for i in range(5):
                 X = [label_raw[s][k + i * 4][0] for k in range(1, 5)]
                 Y = [label_raw[s][k + i * 4][1] for k in range(1, 5)]
-                X.insert(0, label_raw[s][0][0])  # inserting the coordinates of the root point 0
+                # inserting the coordinates of the root point 0
+                X.insert(0, label_raw[s][0][0])
                 Y.insert(0, label_raw[s][0][1])
                 ax.plot(X, Y)
                 plt.imshow(element[s])
@@ -99,16 +100,22 @@ def visualize_img_labels():       # shows the first 6 images with their correspo
 """---  CREATING A LABEL LAYER  ---"""
 
 # from a set of points (raw label), creates an image of the label
-# of the form 128 x 128 filled with ones and zeros 
+# of the form 128 x 128 filled with ones and zeros
+
+
 def create_label(label):
-    label = tf.cast(label, dtype=tf.int64)                  # changing the type from float to int
-    label = tf.clip_by_value(label, 0, 127)                 # removing points outside the 128 range
+    # changing the type from float to int
+    label = tf.cast(label, dtype=tf.int64)
+    # removing points outside the 128 range
+    label = tf.clip_by_value(label, 0, 127)
     batch_lvl = tf.concat(
         [tf.ones(21, dtype=tf.int64) * i for i in range(batch_size)], axis=0
     )
     point_lvl = tf.concat([tf.range(21, dtype=tf.int64)] * batch_size, axis=0)
-    coordinates2 = tf.cast(label[:, :, 0], dtype=tf.int64)  # loading x-axis values
-    coordinates1 = tf.cast(label[:, :, 1], dtype=tf.int64)  # loading y-axis values
+    # loading x-axis values
+    coordinates2 = tf.cast(label[:, :, 0], dtype=tf.int64)
+    # loading y-axis values
+    coordinates1 = tf.cast(label[:, :, 1], dtype=tf.int64)
     indices = tf.stack(
         [
             batch_lvl,
@@ -131,6 +138,8 @@ def create_label(label):
 
 # Applies a gaussian blur on one image of a label
 # returning an tensor image of shape 128 x 128 x 21
+
+
 def __gaussian_blur(img, kernel_size=11, sigma=3):
 
     def gauss_kernel(channels, kernel_size, sigma):
@@ -153,22 +162,26 @@ def __gaussian_blur(img, kernel_size=11, sigma=3):
 
 def create_layer(label):
     parsed_label = create_label(label)   # label image
-    return __gaussian_blur(parsed_label) # gauss'ed label image i.e layer
+    return __gaussian_blur(parsed_label)  # gauss'ed label image i.e layer
 
 
 def load_dataset():
-    layer_tensor = label_origin.map(create_layer)           
-    return tf.data.Dataset.zip((images_raw, layer_tensor))   # Returns an image x layer dataset
+    layer_tensor = label_origin.map(create_layer)
+    # Returns an image x layer dataset
+    return tf.data.Dataset.zip((images_raw, layer_tensor))
 
 # Shows 3 images with their corresponding heatmap of key points
+
+
 def visualize_layer(data):
     plt.figure(figsize=(4, 6))
-    for element in data:            # element being the particular batch 
+    for element in data:            # element being the particular batch
         for i in range(3):
             ax = plt.subplot(2, 3, i + 1)
-            image_label=tf.reduce_sum(element[1][i], axis=-1)
+            # Summing the 21 label values into one value per point
+            image_label = tf.reduce_sum(element[1][i], axis=-1)
             plt.imshow(image_label)
-            ax=plt.subplot(2,3,i+4)
+            ax = plt.subplot(2, 3, i+4)
             plt.imshow(element[0][i])
             plt.axis("off")
         plt.show()
@@ -179,10 +192,14 @@ def visualize_layer(data):
 
 
 def save_dataset(path):
-    load_dataset().save(path)
+    ds = load_dataset()
+    ds.save(path)
+
+
+def main():
+    save_dataset('./data/dataset')
 
 
 if __name__ == "__main__":
-    visualize_img_labels()
-    visualize_layer(load_dataset())
+    main()
     print("executed as main")
