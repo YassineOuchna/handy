@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 "--- PARAMETERS ---"
 batch_size = 64
-learning_rate = 1e-2
+learning_rate = 0.01
 N = 16
 training_dataset_path = './data/dataset'
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
@@ -43,13 +43,19 @@ def build_model():
     x = layers.Input(shape=(128, 128, 3), batch_size=batch_size)
     # Sequential blocks
     y_1 = convblock(x, N)
-    y_2 = convblock(y_1, 2*N)
-    y_3 = convblock(y_2, 4*N)
-    y_4 = convblock(y_3, 8*N)
+    y_1p = layers.MaxPool2D(pool_size=(2, 2))(y_1)
+    y_2 = convblock(y_1p, 2*N)
+    y_2p = layers.MaxPool2D(pool_size=(2, 2))(y_2)
+    y_3 = convblock(y_2p, 4*N)
+    y_3p = layers.MaxPool2D(pool_size=(2, 2))(y_3)
+    y_4 = convblock(y_3p, 8*N)
     # Sequential blocks with skip connections to previous blocks
-    y_5 = convblock(tf.concat([y_4, y_3], axis=3), 4*N)
-    y_6 = convblock(tf.concat([y_5, y_2], axis=3), 2*N)
-    y_7 = convblock(tf.concat([y_6, y_1], axis=3), N)
+    y_4p = layers.UpSampling2D(size=(2, 2))(y_4)
+    y_5 = convblock(tf.concat([y_4p, y_3], axis=3), 4*N)
+    y_5p = layers.UpSampling2D(size=(2, 2))(y_5)
+    y_6 = convblock(tf.concat([y_5p, y_2], axis=3), 2*N)
+    y_6p = layers.UpSampling2D(size=(2, 2))(y_6)
+    y_7 = convblock(tf.concat([y_6p, y_1], axis=3), N)
     # Final layer with post processing
     output = layers.Conv2D(21, activation='sigmoid',
                            kernel_size=3, padding='same')(y_7)
@@ -84,4 +90,3 @@ def print_info():
 if __name__ == '__main__':
     model = build_model()
     training(model, optimizer, loss)
-    model.get_metrics_result()
