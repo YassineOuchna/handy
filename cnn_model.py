@@ -2,24 +2,21 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 import matplotlib.pyplot as plt
-import data_processing
+from data_processing import load_dataset, batch_size
 
 "--- PARAMETERS ---"
-batch_size = data_processing.batch_size
 learning_rate = 0.1
 N = 16
 dropout_rate = 0.3
-training_dataset_path = './data/dataset'
+training_dataset_path = './data/dataset/'
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 loss = tf.keras.losses.MeanSquaredError()
 "--- Retrieving the dataset for training ---"
 
-# training_dataset = tf.data.Dataset.load(training_dataset_path)
+training_dataset = load_dataset()
 
 # For some reason, using the saved dataset doesn't work
 # For now I am running the data processing from scratch
-
-training_dataset = data_processing.load_dataset()
 
 "--- CONVOLUTION Block ---"
 
@@ -94,5 +91,6 @@ def print_info():
 
 if __name__ == '__main__':
     model = build_model()
+    model.summary()
     training(model, optimizer, loss)
-    model.save('./')
+    model.save('./model', overwrite=True)

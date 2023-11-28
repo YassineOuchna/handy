@@ -18,25 +18,35 @@ image_size = [128, 128]
 # Turning raw images into a keras tensor
 # 130240 images of shape 128 x 128 x 3 (rgb values)
 # that are put into batches of size 64
-images_raw = keras.utils.image_dataset_from_directory(
-    training_data_directory,
-    label_mode=None,
-    batch_size=batch_size,
-    image_size=image_size,
-    shuffle=False,
-).map(lambda x: x / 255)
+
+
+def load_images():
+    images_raw = keras.utils.image_dataset_from_directory(
+        training_data_directory,
+        label_mode=None,
+        batch_size=batch_size,
+        image_size=image_size,
+        shuffle=False,
+    ).map(lambda x: x / 255)
+    return images_raw
 
 # Turning raw 3D labels into a 2D tensor
 
-with open("./data/training_xyz.json", "r") as f:
-    xyz_file = j.load(f)
-    xyz_file = tf.convert_to_tensor(
-        xyz_file
-    )  # 3D Coordonates of 21 key points of the hand : 32560 x 21 x 3
 
-with open("./data/training_K.json", "r") as k:
-    K = j.load(k)
-    K = tf.convert_to_tensor(K)  # 3D Coordonates of camera position
+def load_3D_coords():
+    with open("./data/training_xyz.json", "r") as f:
+        xyz_file = j.load(f)
+        xyz = tf.convert_to_tensor(
+            xyz_file
+        )  # 3D Coordonates of 21 key points of the hand : 32560 x 21 x 3
+    return xyz
+
+
+def load_camera_position():
+    with open("./data/training_K.json", "r") as k:
+        K = j.load(k)
+        K = tf.convert_to_tensor(K)  # 3D Coordonates of camera position
+    return K
 
 
 def visualize_img(images_raw):  # Shows 6 images of the dataset
@@ -53,35 +63,37 @@ def visualize_img(images_raw):  # Shows 6 images of the dataset
 """---  SETTING UP LABEL DATASET  ---"""
 
 
-# Projection onto the 2D plane wiht linalg magic
-uv = tf.transpose(
-    tf.linalg.matmul(K, tf.transpose(xyz_file, perm=(0, 2, 1))), perm=(0, 2, 1)
-)
-label_raw = uv[:, :, :2] / uv[:, :, -1:]
-# resizing the coordinates to a 128 x 128 shape
-label_raw = label_raw * (127 / 224)
+def labels():
+    K = load_camera_position()
+    xyz_file = load_3D_coords()
+    # Projection onto the 2D plane wiht linalg magic
+    uv = tf.transpose(
+        tf.linalg.matmul(K, tf.transpose(xyz_file, perm=(0, 2, 1))), perm=(0, 2, 1)
+    )
+    label_raw = uv[:, :, :2] / uv[:, :, -1:]
+    # resizing the coordinates to a 128 x 128 shape
+    label_raw = label_raw * (127 / 224)
 
-# for each label, we have 4 corresponding images
-# having the same hand posture in different conditions
+    # for each label, we have 4 corresponding images
+    # having the same hand posture in different conditions
 
-L1 = tf.concat([label_raw, label_raw], 0)
-L2 = tf.concat([label_raw, label_raw], 0)
+    L1 = tf.concat([label_raw, label_raw], 0)
+    L2 = tf.concat([label_raw, label_raw], 0)
 
+    label_tensor = tf.concat([L1, L2], 0)  # tensor of shape 130240 x 21 x 2
+    # having the (x,y) of 21 hand posture defining points
 
-label_tensor = tf.concat([L1, L2], 0)  # tensor of shape 130240 x 21 x 2
-# having the (x,y) of 21 hand posture defining points
-
-
-# Creating a dataset with both images and labels with batches of size 64
-label_origin = tf.data.Dataset.from_tensor_slices(label_tensor).batch(
-    batch_size, drop_remainder=True
-)
-# dataset with x,y locations as labels
-# dataset = tf.data.Dataset.zip((images_raw, label_origin))
+    # Creating a dataset with both images and labels with batches of size 64
+    label_dataset = tf.data.Dataset.from_tensor_slices(label_tensor).batch(
+        batch_size, drop_remainder=True
+    )
+    return (label_tensor, label_dataset)
 
 
 def visualize_img_labels():       # shows the first 6 images with their corresponding labels
     plt.figure(figsize=(10, 10))
+    images_raw = load_images()
+    label_raw = labels()[0]         # huge not batched label tensor
     for element in images_raw:
         for s in range(6):
             ax = plt.subplot(2, 3, s + 1)
@@ -166,7 +178,9 @@ def create_layer(label):
 
 
 def load_dataset():
-    layer_tensor = label_origin.map(create_layer)
+    label_dataset = labels()[1]
+    layer_tensor = label_dataset.map(create_layer)
+    images_raw = load_images()
     # Returns an image x layer dataset
     return tf.data.Dataset.zip((images_raw, layer_tensor))
 
@@ -180,7 +194,6 @@ def visualize_layer(data):
             ax = plt.subplot(2, 3, i + 1)
             # Summing the 21 label values into one value per point
             image_label = tf.reduce_sum(element[1][i], axis=-1)
-            print(element[1][i].shape)
             plt.imshow(image_label)
             ax = plt.subplot(2, 3, i+4)
             plt.imshow(element[0][i])
@@ -203,10 +216,6 @@ def visualize_layer(data):
 def save_dataset(path):
     ds = load_dataset()
     ds.save(path)
-
-
-def main():
-    save_dataset('./data/dataset')
 
 
 """---  POST PROCESSING  ---"""
@@ -237,4 +246,6 @@ def get_coordinates(layer):  # layer being a heatmap of shape 128 x 128 x 21
 
 
 if __name__ == "__main__":
+    loaded = tf.data.Dataset.load('./data/dataset')
+    visualize_layer(data=loaded)
     print("executed as main")
