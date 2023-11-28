@@ -12,7 +12,7 @@ from tensorflow import keras
 
 # Meaningful variables
 training_data_directory = "./data/training/rgb"
-batch_size = 64
+batch_size = 32
 image_size = [128, 128]
 
 # Turning raw images into a keras tensor
@@ -180,9 +180,18 @@ def visualize_layer(data):
             ax = plt.subplot(2, 3, i + 1)
             # Summing the 21 label values into one value per point
             image_label = tf.reduce_sum(element[1][i], axis=-1)
+            print(element[1][i].shape)
             plt.imshow(image_label)
             ax = plt.subplot(2, 3, i+4)
             plt.imshow(element[0][i])
+            coords = get_coordinates(element[1][i])
+            print(coords)
+            x_val = []
+            y_val = []
+            for j in range(21):
+                x_val.append(coords[j][0])
+                y_val.append(coords[j][1])
+            ax.plot(x_val, y_val)
             plt.axis("off")
         plt.show()
         break
@@ -200,6 +209,32 @@ def main():
     save_dataset('./data/dataset')
 
 
+"""---  POST PROCESSING  ---"""
+
+# Averging the output to find
+# coordinates of different points
+
+
+def get_coordinates(layer):  # layer being a heatmap of shape 128 x 128 x 21
+    n = layer.shape[0]       # width and height
+    feature_num = layer.shape[-1]
+    indices_vector = []
+    for k in range(n):
+        indices_vector.append([k])
+    indices_vector = tf.convert_to_tensor(indices_vector, dtype=tf.float32)
+    indices_vector = tf.transpose(indices_vector)
+    columns = tf.reduce_sum(layer, axis=1, keepdims=True)
+    rows = tf.reduce_sum(layer, axis=0, keepdims=True)
+    values = []
+    for i in range(feature_num):
+        x_values = tf.split(rows, num_or_size_splits=feature_num, axis=-1)[i]
+        y_values = tf.split(
+            columns, num_or_size_splits=feature_num, axis=-1)[i]
+        average_x = tf.tensordot(indices_vector, x_values, axes=2)
+        average_y = tf.tensordot(indices_vector, y_values, axes=2)
+        values.append((float(average_x), float(average_y)))
+    return values
+
+
 if __name__ == "__main__":
-    main()
-    print("executed as main")
+    visualize_layer(load_dataset())
