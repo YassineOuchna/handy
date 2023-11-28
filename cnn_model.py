@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 import data_processing
 
 "--- PARAMETERS ---"
-batch_size = 64
-learning_rate = 0.01
+batch_size = data_processing.batch_size
+learning_rate = 0.1
 N = 16
+dropout_rate = 0.3
 training_dataset_path = './data/dataset'
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 loss = tf.keras.losses.MeanSquaredError()
@@ -29,11 +30,11 @@ def convblock(x, out_dim):
     # l2= layers.Conv2D(out_dim, kernel_size=3,
     #                     padding="same", activation="relu")(l1)
     l3 = layers.BatchNormalization()(x)
-    l4 = layers.SpatialDropout2D(0.3)(l3)
+    l4 = layers.SpatialDropout2D(dropout_rate)(l3)
     l5 = layers.Conv2D(out_dim, kernel_size=3,
                        padding="same", activation="relu")(l4)
     l6 = layers.BatchNormalization()(l5)
-    l7 = layers.SpatialDropout2D(0.3)(l6)
+    l7 = layers.SpatialDropout2D(dropout_rate)(l6)
     y = layers.Conv2D(out_dim, kernel_size=3,
                       padding="same", activation="relu")(l7)
     return y
@@ -55,11 +56,11 @@ def build_model():
     y_4 = convblock(y_3p, 8*N)
     # Sequential blocks with skip connections to previous blocks
     y_4p = layers.UpSampling2D(size=(2, 2))(y_4)
-    y_5 = convblock(tf.concat([y_4p, y_3], axis=3), 4*N)
+    y_5 = convblock(tf.concat([y_3, y_4p], axis=3), 4*N)
     y_5p = layers.UpSampling2D(size=(2, 2))(y_5)
-    y_6 = convblock(tf.concat([y_5p, y_2], axis=3), 2*N)
+    y_6 = convblock(tf.concat([y_2, y_5p], axis=3), 2*N)
     y_6p = layers.UpSampling2D(size=(2, 2))(y_6)
-    y_7 = convblock(tf.concat([y_6p, y_1], axis=3), N)
+    y_7 = convblock(tf.concat([y_1, y_6p], axis=3), N)
     # Final layer with post processing
     output = layers.Conv2D(21, activation='sigmoid',
                            kernel_size=3, padding='same')(y_7)
@@ -71,7 +72,7 @@ def training(full_model, optimizer, loss):
     full_model.compile(optimizer=optimizer,
                        loss=loss,
                        metrics=['accuracy'])
-    full_model.fit(training_dataset)
+    full_model.fit(training_dataset, verbose=1)
 
 
 # Visualizing input and prediction layer
@@ -94,3 +95,4 @@ def print_info():
 if __name__ == '__main__':
     model = build_model()
     training(model, optimizer, loss)
+    model.save('./')
