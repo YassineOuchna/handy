@@ -184,8 +184,8 @@ def visualize_layer(data):
             plt.imshow(image_label)
             ax = plt.subplot(2, 3, i+4)
             plt.imshow(element[0][i])
+            # Recalculating the the coordinates from the heatmap
             coords = get_coordinates(element[1][i])
-            print(coords)
             x_val = []
             y_val = []
             for j in range(21):
@@ -237,4 +237,4 @@ def get_coordinates(layer):  # layer being a heatmap of shape 128 x 128 x 21
 
 
 if __name__ == "__main__":
-    visualize_layer(load_dataset())
+    print("executed as main")
