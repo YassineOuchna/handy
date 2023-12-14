@@ -22,8 +22,8 @@ while True:
             x = round((coords[i + k*4][0])*(640/120))
             y = round((coords[i + k*4][1])*(480/120))
             points.append((x, y))
+        points.insert(0, (round(coords[0][0]), round(coords[0][1])))
         print(points)
-        points.insert(0, (coords[0][0], coords[0][1]))
         for p in range(len(points)-1):
             cv2.line(frame, points[p], points[p+1], (0, 0, 255), 3)
     cv2.imshow('Hand Detector', frame)
