@@ -13,8 +13,9 @@ optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 loss = tf.keras.losses.MeanSquaredError()
 "--- Retrieving the dataset for training ---"
 
-training_dataset = load_dataset()
-
+full_dataset = load_dataset()
+training_dataset, validation_dataset = tf.keras.utils.split_dataset(
+    full_dataset, left_size=0.8)
 # For some reason, using the saved dataset doesn't work
 # For now I am running the data processing from scratch
 
@@ -69,7 +70,8 @@ def training(full_model, optimizer, loss):
     full_model.compile(optimizer=optimizer,
                        loss=loss,
                        metrics=['accuracy'])
-    full_model.fit(training_dataset, verbose=1)
+    full_model.fit(training_dataset, verbose=1, epochs=3,
+                   validation_data=validation_dataset, validation_steps=200)
 
 
 # Visualizing input and prediction layer

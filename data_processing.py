@@ -213,8 +213,7 @@ def visualize_layer(data):
 """---  SAVING THE FINAL DATASET  ---"""
 
 
-def save_dataset(path):
-    ds = load_dataset()
+def save_dataset(ds, path):
     ds.save(path)
 
 
@@ -246,6 +245,6 @@ def get_coordinates(layer):  # layer being a heatmap of shape 128 x 128 x 21
 
 
 if __name__ == "__main__":
-    loaded = tf.data.Dataset.load('./data/dataset')
-    visualize_layer(data=loaded)
+    ds = load_dataset()
+    visualize_layer(data=ds)
     print("executed as main")
