@@ -13,7 +13,9 @@ while True:
     # of a 480 x 640 x 3 array
 
     grabbed, frame = video.read()
-    small_frame = np.expand_dims(cv2.resize(frame, (128, 128)), axis=0)
+    small_frame = cv2.resize(frame, (128, 128))
+    small_frame = np.expand_dims(cv2.cvtColor(
+        small_frame, cv2.COLOR_BGR2RGB), axis=0)
     heatmap = model(small_frame)[0]
     coords = get_coordinates(heatmap)
     for i in range(5):

@@ -27,7 +27,8 @@ def check_images():
             points.insert(0, (round(coords[0][0]), round(coords[0][1])))
             print(points)
             for p in range(len(points)-1):
-                cv2.line(image, points[p], points[p+1], (0, 0, 255), 3)
+                cv2.line(image, points[p], points[p+1],
+                         (0, 0, 255), thickness=2)
         images.append(image)
 
     plt.figure(figsize=(4, 6))

@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 from data_processing import load_dataset, batch_size
 
 "--- PARAMETERS ---"
-learning_rate = 0.1
+learning_rate = 0.001
 N = 16
 dropout_rate = 0.3
-optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, epsilon=0.1)
+optimizer = tf.keras.optimizers.Adam(
+    learning_rate=learning_rate, epsilon=0.0001)
 loss = tf.keras.losses.MeanSquaredError()
 "--- Retrieving the dataset for training ---"
 
@@ -68,7 +69,7 @@ def training(full_model, optimizer, loss):
     full_model.compile(optimizer=optimizer,
                        loss=loss,
                        metrics=['accuracy'])
-    full_model.fit(training_dataset, verbose=1, epochs=1)
+    full_model.fit(training_dataset, verbose=1, epochs=4)
 
 
 # Visualizing input and prediction layer
