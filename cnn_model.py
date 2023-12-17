@@ -8,12 +8,10 @@ from data_processing import load_dataset, batch_size
 learning_rate = 0.1
 N = 16
 dropout_rate = 0.3
-training_dataset_path = './data/dataset/'
-optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, epsilon=0.1)
 loss = tf.keras.losses.MeanSquaredError()
 "--- Retrieving the dataset for training ---"
 
-training_dataset = load_dataset()
 # training_dataset, validation_dataset = tf.keras.utils.split_dataset(full_dataset, left_size=0.8)
 # For some reason, using the saved dataset doesn't work
 # For now I am running the data processing from scratch
@@ -66,10 +64,11 @@ def build_model():
 
 
 def training(full_model, optimizer, loss):
+    training_dataset = load_dataset()
     full_model.compile(optimizer=optimizer,
                        loss=loss,
                        metrics=['accuracy'])
-    full_model.fit(training_dataset, verbose=1, epochs=3, validation_steps=200)
+    full_model.fit(training_dataset, verbose=1, epochs=1)
 
 
 # Visualizing input and prediction layer
@@ -79,14 +78,6 @@ def visualize(x, y):
     plt.imshow(y)
     plt.imshow(x)
     plt.show()
-
-
-def print_info():
-    print(training_dataset)
-    i = 0
-    for batch in training_dataset:
-        print(tf.shape(batch[0]), tf.shape(batch[1]))
-        break
 
 
 if __name__ == '__main__':
