@@ -57,7 +57,7 @@ def build_model():
     y_6 = convblock(tf.concat([y_2, y_5p], axis=3), 2*N)
     y_6p = layers.UpSampling2D(size=(2, 2))(y_6)
     y_7 = convblock(tf.concat([y_1, y_6p], axis=3), N)
-    # Final layer with post processing
+    # Final layer
     output = layers.Conv2D(21, activation='sigmoid',
                            kernel_size=3, padding='same')(y_7)
 
