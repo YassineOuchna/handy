@@ -112,7 +112,7 @@ def visualize_img_labels():       # shows the first 6 images with their correspo
 """---  CREATING A LABEL LAYER  ---"""
 
 # from a set of points (raw label), creates an image of the label
-# of the form 128 x 128 filled with ones and zeros
+# of the form 128 x 128 x 21 filled with ones and zeros
 
 
 def create_label(label):
@@ -124,9 +124,9 @@ def create_label(label):
         [tf.ones(21, dtype=tf.int64) * i for i in range(batch_size)], axis=0
     )
     point_lvl = tf.concat([tf.range(21, dtype=tf.int64)] * batch_size, axis=0)
-    # loading x-axis values
+    # loading x-axis values casted as integers
     coordinates2 = tf.cast(label[:, :, 0], dtype=tf.int64)
-    # loading y-axis values
+    # loading y-axis values casted as integers
     coordinates1 = tf.cast(label[:, :, 1], dtype=tf.int64)
     indices = tf.stack(
         [
@@ -185,6 +185,7 @@ def load_dataset():
     return tf.data.Dataset.zip((images_raw, layer_tensor))
 
 # Shows 3 images with their corresponding heatmap of key points
+# And the corresponding reconstruction of labels from the heatmap
 
 
 def visualize_layer(data):
@@ -211,6 +212,8 @@ def visualize_layer(data):
 
 
 """---  SAVING THE FINAL DATASET  ---"""
+
+# My 8gb of ram cannot save this huge dataset
 
 
 def save_dataset(ds, path):
@@ -246,5 +249,6 @@ def get_coordinates(layer):  # layer being a heatmap of shape 128 x 128 x 21
 
 if __name__ == "__main__":
     ds = load_dataset()
+    visualize_img_labels()
     visualize_layer(data=ds)
     print("executed as main")

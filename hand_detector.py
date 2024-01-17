@@ -30,7 +30,6 @@ while True:
             cv2.line(frame, points[p], points[p+1], (0, 0, 255), 3)
     cv2.imshow('Hand Detector', frame)
 
-    # the 'q' button is set as the quit button
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

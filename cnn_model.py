@@ -14,7 +14,7 @@ loss = tf.keras.losses.MeanSquaredError()
 "--- Retrieving the dataset for training ---"
 
 # training_dataset, validation_dataset = tf.keras.utils.split_dataset(full_dataset, left_size=0.8)
-# For some reason, using the saved dataset doesn't work
+# Given the size of the dataset, my computer cannot save it and subsequently cannot load it
 # For now I am running the data processing from scratch
 
 "--- CONVOLUTION Block ---"
@@ -84,5 +84,5 @@ def visualize(x, y):
 if __name__ == '__main__':
     model = build_model()
     model.summary()
-    training(model, optimizer, loss)
-    model.save('./model', overwrite=True)
+    # training(model, optimizer, loss)
+    # model.save('./model', overwrite=True)

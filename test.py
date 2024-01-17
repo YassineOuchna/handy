@@ -38,9 +38,5 @@ def check_images():
     plt.show()
 
 
-def train_test():
-    pass
-
-
 if __name__ == '__main__':
     check_images()
