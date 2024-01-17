@@ -24,9 +24,13 @@ The neural network model used in the article is beautifully described by the fol
 
 <img src="./demos/model.png?raw=true" />
 
+*Model implementation with a batch size of 32 using **Tensorflow***
+
+<img src="./demos/model_summary.png?raw=true">
+
 I'm currently playing around with different parameters and testing some sutff like adding a SpatialDropOut, changing batch size...etc\
 However modifying and testing on such a huge dataset takes a lot of time, even when using top tier GPUs in GoogleCollab, one epoch with a batch size of 64 takes roughly 2 hours!\
-Initial values for training are : loss=0.001 and accuracy=0.90
 
+As mentioned in the article, the model converges roughly after **200 epochs**, it's safe to say it will take a long time to train on the mere 4gb graphics card I'm currently using.
 
 
