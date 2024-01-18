@@ -200,12 +200,12 @@ def visualize_layer(data):
             plt.imshow(element[0][i])
             # Recalculating the the coordinates from the heatmap
             coords = get_coordinates(element[1][i])
-            x_val = []
-            y_val = []
-            for j in range(21):
-                x_val.append(coords[j][0])
-                y_val.append(coords[j][1])
-            ax.plot(x_val, y_val)
+            for j in range(5):
+                x_val = [coords[k+j*4][0] for k in range(1, 5)]
+                y_val = [coords[k+j*4][1] for k in range(1, 5)]
+                x_val.insert(0, coords[0][0])
+                y_val.insert(0, coords[0][1])
+                ax.plot(x_val, y_val)
             plt.axis("off")
         plt.show()
         break
@@ -249,6 +249,5 @@ def get_coordinates(layer):  # layer being a heatmap of shape 128 x 128 x 21
 
 if __name__ == "__main__":
     ds = load_dataset()
-    visualize_img_labels()
     visualize_layer(data=ds)
     print("executed as main")
