@@ -21,11 +21,11 @@ loss = tf.keras.losses.MeanSquaredError()
 
 
 def convblock(x, out_dim):
-    # l0=layers.BatchNormalization()(x)
-    # l1 = layers.SpatialDropout2D(0.3)(l0)
-    # l2= layers.Conv2D(out_dim, kernel_size=3,
-    #                     padding="same", activation="relu")(l1)
-    l3 = layers.BatchNormalization()(x)
+    l0=layers.BatchNormalization()(x)
+    l1 = layers.SpatialDropout2D(0.3)(l0)
+    l2= layers.Conv2D(out_dim, kernel_size=3,
+                        padding="same", activation="relu")(l1)
+    l3 = layers.BatchNormalization()(l2)
     l4 = layers.SpatialDropout2D(dropout_rate)(l3)
     l5 = layers.Conv2D(out_dim, kernel_size=3,
                        padding="same", activation="relu")(l4)
@@ -84,5 +84,5 @@ def visualize(x, y):
 if __name__ == '__main__':
     model = build_model()
     model.summary()
-    # training(model, optimizer, loss)
-    # model.save('./model', overwrite=True)
+    training(model, optimizer, loss)
+    model.save('./model', overwrite=True)

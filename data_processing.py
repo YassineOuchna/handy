@@ -1,7 +1,6 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import json as j
-import numpy as np
 from tensorflow import keras
 
 
@@ -250,4 +249,3 @@ def get_coordinates(layer):  # layer being a heatmap of shape 128 x 128 x 21
 if __name__ == "__main__":
     ds = load_dataset()
     visualize_layer(data=ds)
-    print("executed as main")
