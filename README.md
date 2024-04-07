@@ -51,7 +51,7 @@ You can process the data and train the model on it directly by running :
 ```bash
 python cnn_model.py
 ```
-The model is then saved in ```./model```
+The model is then saved as `.keras` zip archive
 ## Testing on dataset images
 You an visualize the output of the model on some images by running :
 ```bash

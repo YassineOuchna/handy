@@ -7,7 +7,7 @@ import numpy as np
 
 
 def check_images():
-    model = tf.keras.models.load_model('./model')
+    model = tf.keras.models.load_model('hand_detector.keras')
     images = []
     for i in range(6):
         k = rd.randint(10, 99)

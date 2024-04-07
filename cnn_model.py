@@ -85,4 +85,4 @@ if __name__ == '__main__':
     model = build_model()
     model.summary()
     training(model, optimizer, loss)
-    model.save('./model', overwrite=True)
+    model.save('hand_detector.keras', overwrite=True)

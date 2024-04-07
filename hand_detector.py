@@ -4,7 +4,7 @@ from data_processing import get_coordinates
 import tensorflow as tf
 import numpy as np
 
-model = tf.keras.models.load_model('./model')
+model = tf.keras.models.load_model('hand_detector.keras')
 video = cv2.VideoCapture(0)
 
 while True:
